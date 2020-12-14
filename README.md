@@ -15,8 +15,8 @@ It generates a class which extends `PHPUnit\Framework\TestCase` and contains
  
 ## How to use it.
 Before using it you need to connect the app to your application for which you create unit tests.  
-This can be done in `index.php`. The variable `$externalAppBootstrap` should contain the file path of a boostrap file from your application or any file that has the autoloader configured so all classes can be loaded.  
-Example, for magento you can put the path to the `bootstrap.php` file.  
+This can be done in `index.php`. The variable `$externalAppBootstrap` declared in `src/boostrap.php` should contain the file path of a boostrap file from your application or any file that has the autoloader configured so all classes can be loaded.  
+Example, for magento you can put the path to the Magento's `app/bootstrap.php` file.  
 For Symfony include `vendor/autoload.php`.  
 
 You can run this in the browser: `index.php?class=Class\Name\Here`;  
