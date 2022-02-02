@@ -1,34 +1,38 @@
 <?php
 
-require_once 'src/bootstrap.php';
+error_reporting(E_ALL);
+ini_set("display_errors", "on");
 
+require_once 'core/Uutg/Autoloader.php';
+
+\Uutg\Autoloader::$paths = ['core', 'custom'];
+spl_autoload_register(\Uutg\Autoloader::class . '::loader');
+
+$isCli = php_sapi_name() === "cli";
+$options = $isCli
+    ? getopt("", ["class:", "profile::", "separator::"])
+    : $_GET;
+$options['cli'] = $isCli;
+
+$profilePaths = [__DIR__ . '/core/profile/', __DIR__ . '/custom/profile/'];
+$loader = new \Uutg\Profile\Loader($profilePaths);
+
+$manager = new \Uutg\Di\Manager([get_class($loader) => $loader]);
+
+
+/** @var \Uutg\App $app */
 try {
-    if (php_sapi_name() === "cli") {
-        if (isset($argv[1])) {
-            $className = $argv[1];
-        } else {
-            throw new \InvalidArgumentException(
-                "Missing class name. Usage: `php index.php \"ClassName\Here\"`"
-            );
-        }
-    } else {
-        if (isset($_GET['class'])) {
-            $className = $_GET['class'];
-        } else {
-            throw new \InvalidArgumentException(
-                "Missing class name. Usage `index.php?class=ClassName\Here`"
-            );
-        }
-    }
-    $configData = require 'config/config.php';
-    $config = new \Uutg\Config($configData);
-    $renderer = new \Uutg\Renderer('templates');
-    $generator = new \Uutg\Generator(
-        new \Uutg\ReflectionFactory(),
-        $config,
-        $className
+    $app = $manager->get(
+        \Uutg\App::class,
+        [
+            'renderer' => $manager->get(
+                \Uutg\Renderer::class,
+                ['templatePaths' => ['custom/templates', 'core/templates']]
+            ),
+            'options' => $options
+        ]
     );
-    echo $renderer->render('test.phtml', ['generator' => $generator]);
-} catch (\Exception $e) {
-    echo implode("\n\n", [$e->getMessage(), $e->getTraceAsString()]);
+} catch (ReflectionException $e) {
+    echo $e->getMessage();
 }
+echo $app->run();
