@@ -471,8 +471,12 @@ class Builder
         foreach ($methods as $methodName) {
             if (!in_array($methodName, $collected)) {
                 $collected[] = $methodName;
-                $subMethod = $this->getReflection()->getMethod($methodName);
-                $collected = $this->getMethodCalls($subMethod, $collected);
+                try {
+                    $subMethod = $this->getReflection()->getMethod($methodName);
+                    $collected = $this->getMethodCalls($subMethod, $collected);
+                } catch (\ReflectionException $e) {
+                    continue;
+                }
             }
         }
         return $collected;
