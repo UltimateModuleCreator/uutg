@@ -17,7 +17,7 @@
 
 declare(strict_types=1);
 
-if (!php_sapi_name() !== "cli") {
+if (php_sapi_name() !== "cli") {
     exit('Test generator can be executed from cli only');
 }
 $options = getopt("", ["class:", "config::"]);
