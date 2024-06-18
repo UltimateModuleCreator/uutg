@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * Ultimate Unit Test Generator (Uutg)
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * that is bundled with this package in the file LICENSE.txt
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/mit-license.php
+ *
+ * @license   http://opensource.org/licenses/mit-license.php MIT License
+ * @author    Marius Strajeru
+ */
+
+declare(strict_types=1);
+
+if (!php_sapi_name() === "cli") {
+    exit('Test generator can be executed from cli only');
+}
+$options = getopt("", ["class:", "config::"]);
+$configFile = $options['config'] ?? __DIR__.'/uutg.php.dist';
+
+if (!file_exists($configFile)) {
+    exit(sprintf("Config file '%s' does not exist", $configFile));
+}
+require_once './src/Uutg/Config.php';
+require_once './src/Uutg/Uutg.php';
+require_once './src/Uutg/Generator.php';
+require_once './src/Uutg/Parameter.php';
+require_once './src/Uutg/Method.php';
+$config = new \Umc\Uutg\Config(include $configFile);
+
+$app = new \Umc\Uutg\Uutg(
+    $config,
+    $options['class'] ?? null
+);
+
+exit($app->run());

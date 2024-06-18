@@ -1,0 +1,9 @@
+version: "3"
+services:
+  uutg:
+    build:
+      context: .
+    ports:
+      - 9000:80
+    volumes:
+      - .:/var/www/html

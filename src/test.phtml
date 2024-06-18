@@ -1,0 +1,121 @@
+<?php
+/**
+ * Ultimate Unit Test Generator (Uutg)
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * that is bundled with this package in the file LICENSE.txt
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/mit-license.php
+ *
+ * @license   http://opensource.org/licenses/mit-license.php MIT License
+ * @author    Marius Strajeru
+ */
+?>
+<?php /** @var \Umc\Uutg\Generator $this */?>
+<?= '<?php' . PHP_EOL?>
+<?= $this->getConfig()->getHeader();?>
+<?= ($this->getNamespace()) ? 'namespace ' . $this->getNamespace() . ';' : '';?>
+
+<?= \Umc\Uutg\Generator::USES_PLACEHOLDER;?>
+
+<?php if ($this->getConfig()->getCoverageMode() & \Umc\Uutg\Config::COVERAGE_MODE_ANNOTATION) : ?>
+#[<?= $this->renderClassName($this->getConfig()->getCoversClassAnnotation())?>(<?= $this->renderClassName($this->getClassName())?>::class)]
+<?php endif;?>
+class <?= $this->getClassShortName(); ?>Test extends <?= $this->renderClassName($this->getConfig()->getTestCaseClassName()) . PHP_EOL ?>
+{
+<?php foreach ($this->getMockables() as $param) : ?>
+<?php if ($this->getConfig()->isMemberDocBlocks()) :?>
+
+    /**
+     * @var <?= $this->renderClassName($param->getType()); ?>|<?= $this->renderClassName($this->getConfig()->getMockObjectClass()) . PHP_EOL?>
+     */
+<?php endif;?>
+    <?= $this->getConfig()->getMemberAccess();?><?= $this->getConfig()->isStrongType() ? ' ' . $this->renderClassName($param->getType()) . ($this->getConfig()->isUnionType() ? '|'.$this->renderClassName($this->getConfig()->getMockObjectClass()) : '') : ''?> $<?= $param->getName();?>;
+<?php endforeach;?>
+<?php if ($this->hasNonStaticMethods()) :?>
+<?php if ($this->getConfig()->isMemberDocBlocks()) :?>
+
+    /**
+     * @var <?= $this->renderClassName($this->getClassName()) . PHP_EOL;?>
+     */
+<?php endif;?>
+    <?= $this->getConfig()->getMemberAccess();?><?= $this->getConfig()->isStrongType() ? ' ' . $this->renderClassName($this->getClassName(true)) : ''?> $<?= $this->getTestInstanceVarName()?>;
+<?php endif;?>
+
+    /**
+     * Setup tests
+     */
+    protected function setUp(): void
+    {
+<?php foreach ($this->getMockables() as $param) : ?>
+        $this-><?= $param->getName();?> = $this->createMock(<?= $this->renderClassName($param->getType()) ?>::class);
+<?php endforeach;?>
+<?php if ($this->hasNonStaticMethods()) : ?>
+<?php
+        $prefix = '$this->' . $this->getTestInstanceVarName() . ' = new ' . $this->renderClassName($this->getClassName()) . '(';
+        $suffix = ');';
+        $indent = 3 * 4;
+        $stringParams = $this->formatMethodParams(
+            implode(
+                ', ',
+                array_map(
+                    function (\Umc\Uutg\Parameter $param) {
+                        return $param->isMockable() ? '$this->' . $param->getName() : $param->getValue();
+                    },
+                    $this->getConstructorParams()
+                )
+            ),
+            strlen($prefix),
+            strlen($suffix),
+            $indent
+        );
+?>
+        <?= $prefix . $stringParams . $suffix?>
+<?php endif;?>
+
+    }
+
+<?php foreach ($this->getMethods() as $method) : ?>
+
+<?php if ($this->getConfig()->getCoverageMode() & \Umc\Uutg\Config::COVERAGE_MODE_DOC_BLOCK) : ?>
+    /**
+<?php foreach ($this->getCoverage($method) as $cover):  ?>
+     * @covers \<?= $this->getClassName();?>::<?= $cover;?>
+
+<?php endforeach;?>
+     */
+<?php endif;?>
+<?php if ($this->getConfig()->isTestAttribute()): ?>
+    #[<?= $this->renderClassName($this->getConfig()->getTestAttributeClass())?>]
+<?php endif;?>
+    public function <?= $this->getTestMethodName($method) ?>()
+    {
+        //TODO: Insert test here for \<?= $this->getClassName() . '::' . $method->getName() . PHP_EOL;?>
+    <?php
+    $prefix = !$method->isStatic()
+        ? '$this->' . $this->getTestInstanceVarName() . '->' . $method->getName() . '('
+        : $this->renderClassName($this->getClassName(true)) . '::' . $method->getName() . '(';
+    $suffix = ');';
+    $indent = 4 * 3; //3 tabs in spaces
+    $stringParams = $this->formatMethodParams(
+        implode(
+            ', ',
+            array_map(
+                function (\Umc\Uutg\Parameter $param) {
+                    return $param->isMockable() ? '$this->' . $param->getName() : $param->getValue();
+                },
+                $method->getParameters()
+            )
+        ),
+        strlen($prefix),
+        strlen($suffix),
+        $indent
+    );
+    ?>
+    <?= $prefix . $stringParams . $suffix?>
+
+    }
+<?php endforeach;?>
+}
