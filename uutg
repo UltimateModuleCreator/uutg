@@ -20,17 +20,35 @@ declare(strict_types=1);
 if (php_sapi_name() !== "cli") {
     exit('Test generator can be executed from cli only');
 }
-$options = getopt("", ["class:", "config::"]);
-$configFile = $options['config'] ?? __DIR__.'/uutg.php.dist';
 
-if (!file_exists($configFile)) {
-    exit(sprintf("Config file '%s' does not exist", $configFile));
+print_r($GLOBALS);
+if (isset($GLOBALS['_composer_autoload_path'])) {
+    define('UUTG_COMPOSER_INSTALL', $GLOBALS['_composer_autoload_path']);
+    unset($GLOBALS['_composer_autoload_path']);
+} else {
+    foreach (array(__DIR__ . '/../../autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/vendor/autoload.php') as $file) {
+        if (file_exists($file)) {
+            define('UUTG_COMPOSER_INSTALL', $file);
+            break;
+        }
+    }
+
+    unset($file);
 }
-//require_once './src/Uutg/Config.php';
-//require_once './src/Uutg/Uutg.php';
-//require_once './src/Uutg/Generator.php';
-//require_once './src/Uutg/Parameter.php';
-//require_once './src/Uutg/Method.php';
+
+if (!defined('UUTG_COMPOSER_INSTALL')) {
+    die("Cannot find autoload file\n");
+}
+
+require UUTG_COMPOSER_INSTALL;
+
+$options = getopt("", ["class:", "config::"]);
+$configFile = $options['config'] ?? __DIR__.'/./uutg.php.dist';
+
+echo $configFile;echo "\n";
+if (!file_exists($configFile)) {
+    exit(sprintf("Config file '%s' does not exist\n", $configFile));
+}
 $config = new \Umc\Uutg\Config(include $configFile);
 
 $app = new \Umc\Uutg\Uutg(

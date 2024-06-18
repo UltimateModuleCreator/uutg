@@ -79,7 +79,7 @@ return [
     'coverage_mode' => 1,
 
     //this is the template used to generate the test class. you can replace it with your own if you want another format
-    'template' => './src/test.phtml',
+    'template' => __DIR__ . '/src/test.phtml',
     //this is the PHPUnit test case class. You can change it to something else if you are using a wrapper over PHPUnit
     'test_case_class_name' => '\\PHPUnit\\Framework\\TestCase',
 
