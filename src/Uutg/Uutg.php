@@ -28,8 +28,11 @@ class Uutg
 
     public function run(): string
     {
-        if ($this->className === null) {
+        if (empty($this->className)) {
             return $this->getUsage();
+        }
+        if (!class_exists($this->className)) {
+            return sprintf('Class "%s" does not exist', $this->className);
         }
         $generator = new Generator($this->config, $this->className);
         return $generator->generate();

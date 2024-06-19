@@ -54,4 +54,4 @@ $app = new \Umc\Uutg\Uutg(
     $options['class'] ?? null
 );
 
-exit($app->run());
+exit($app->run() . "\n");
