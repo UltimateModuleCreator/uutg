@@ -21,7 +21,6 @@ if (php_sapi_name() !== "cli") {
     exit('Test generator can be executed from cli only');
 }
 
-print_r($GLOBALS);
 if (isset($GLOBALS['_composer_autoload_path'])) {
     define('UUTG_COMPOSER_INSTALL', $GLOBALS['_composer_autoload_path']);
     unset($GLOBALS['_composer_autoload_path']);

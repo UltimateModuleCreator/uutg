@@ -114,6 +114,7 @@ class Generator
     public function getParameters(): array
     {
         if ($this->parameters === null) {
+            $this->parameters = [];
             $this->collectParams();
         }
         return $this->parameters;
