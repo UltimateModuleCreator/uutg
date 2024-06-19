@@ -126,6 +126,7 @@ class Generator
     public function getConstructorParams(): array
     {
         if ($this->constructorParams === null) {
+            $this->constructorParams = [];
             $this->collectParams();
         }
         return $this->constructorParams;
