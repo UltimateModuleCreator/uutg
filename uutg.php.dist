@@ -36,7 +36,9 @@ return [
         'callable' => 'function () {
         }',
         '\Closure' => 'function () {
-        }'
+        }',
+        'mixed' => '""',
+        'object' => 'new stdClass'
     ],
 
     //a method to generate the namespace of the test class from the class being tested

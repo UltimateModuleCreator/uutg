@@ -182,12 +182,22 @@ class Generator
         if ($type === null) {
             return false;
         }
-        return !isset($this->getConfig()->getNonMockable()[$parameter->getType()->getName()]);
+        return !isset($this->getConfig()->getNonMockable()[$this->getReflectionParameterTypeName($parameter)]);
+    }
+
+    private function getReflectionParameterTypeName(ReflectionParameter $param): string
+    {
+        $type = $param->getType();
+        if (is_callable([$type, 'getTypes'])) {
+            return $type->getTypes()[0]->getName();
+        }
+        return $type ? $type->getName() : '';
     }
 
     private function buildParam(ReflectionParameter $param): Parameter
     {
-        $realType = $this->getType($param->getType() ? $param->getType()->getName() : '');
+        $name = $this->getReflectionParameterTypeName($param);
+        $realType = $this->getType($name);
         $paramKey = $this->getParamKey($realType, $param->getName());
         $this->parameters = $this->parameters ?? [];
         if (array_key_exists($paramKey, $this->parameters)) {
@@ -240,13 +250,13 @@ class Generator
     {
         if ($this->hasNonStaticMethods === null) {
             $this->hasNonStaticMethods = count(
-                array_filter(
-                    $this->getMethods(),
-                    function (Method $method) {
-                        return !$method->isStatic();
-                    }
-                )
-            ) > 0;
+                    array_filter(
+                        $this->getMethods(),
+                        function (Method $method) {
+                            return !$method->isStatic();
+                        }
+                    )
+                ) > 0;
         }
         return $this->hasNonStaticMethods;
     }
