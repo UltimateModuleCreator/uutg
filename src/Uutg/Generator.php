@@ -459,7 +459,7 @@ class Generator
                 return null;
             }
             if ($use['alias'] === $candidate) {
-                return $this->getCleanUse($class, $aliasLevel+1, $collected);
+                return $this->getCleanUse($class, $aliasLevel + 1, $collected);
             }
         }
         return [

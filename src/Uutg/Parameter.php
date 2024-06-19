@@ -21,8 +21,8 @@ namespace Umc\Uutg;
 class Parameter
 {
     public function __construct(
-        private string  $type,
-        private string  $name,
+        private string $type,
+        private string $name,
         private bool $mockable = true,
         private ?string $value = null
     ) {
