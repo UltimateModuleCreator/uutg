@@ -1,0 +1,108 @@
+<?php
+/**
+ * Ultimate Unit Test Generator (Uutg)
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the MIT License
+ * that is bundled with this package in the file LICENSE.txt
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/mit-license.php
+ *
+ * @license   http://opensource.org/licenses/mit-license.php MIT License
+ * @author    Marius Strajeru
+ */
+return [
+    // Will appear at the beginning of every class Useful to add a license or anything else
+    'header' => [
+        '',
+        'declare(strict_types=1);',
+        '',
+        ''
+    ],
+
+    //list of public methods for which a test method should not be created
+    'non_testable' => [
+        '__construct'
+    ],
+
+    //list of types that should not be mocked and should use a default value
+    'non_mockable' => [
+        'string' => '"str"',
+        'array' => '[]',
+        'int' => '1',
+        'bool' => 'true',
+        'float' =>  '1.00',
+        'callable' => 'function () {
+        }',
+        '\Closure' => 'function () {
+        }',
+        'mixed' => '""',
+        'object' => 'new stdClass'
+    ],
+
+    //a method to generate the namespace of the test class from the class being tested
+    //it can be a callble value which will return the namespace of the test or....
+    //an array with elements to be inserted in the original class name to get the test class name
+    //for example [2 => 'Test', 3 => 'Unit'] and class name `\Some\Dummy\ClassName` will result in inserting the values
+    //`Test` on position 2 and `Unit` on position 3 after splitting the class name by backslash
+    //So the result will be the namespace \Some\Dummy\Test\Unit.
+    'namespace_strategy' => [
+        2 => 'Test',
+        3 => 'Unit'
+    ],
+
+    //list of replacements for certain classes that should be mocked
+    //example: 'replace' => ['Some\DummyInterface' => 'Some\DummyClass'] will make it so each time `Some\DummyInterface`
+    //should get mocked, actually `Some\DummyClass` will get mocked. In theory should should not need this,
+    //but life is not perfect
+    'replace' => [],
+
+    //if true, fully qualified class names will be used in the test class.
+    //If false, class names will be added to the `use` section with aliases to avoid class name clashes
+    'use_fqn' => false,
+
+    //if set to yes, the mocks will have a strong a type attached to them
+    //`private SomeClass $someMock;`
+    //if set to no, the mocks will not have a type
+    //`private $someMock;`
+    'strong_type' => true,
+
+    //if set to try the type of the mocks will inlcude MockObject also
+    //`private SomeClass|MockObject $someMock`
+    //it has no effeect if `strong_type` is set to false
+    'union_type' => true,
+
+    //this determines the coverage mode for the unit tests.
+    //if set to 0, no coverage annotations / attributes will be added to the test class
+    //if set to 1 the attribute `CoversClass` will be added to the test class. Use 1 if you are using PHPUnit 10+
+    //if set to 2, each test method will have annotations with the methods that it covers. Use 2 if you have PHPUnit 9 or less
+    //if seet to 3, both (1 and 2 from above) will be used... Please don't use 3.
+    'coverage_mode' => 1,
+
+    //this is the template used to generate the test class. you can replace it with your own if you want another format
+    'template' => __DIR__ . '/src/test.phtml',
+    //this is the PHPUnit test case class. You can change it to something else if you are using a wrapper over PHPUnit
+    'test_case_class_name' => '\\PHPUnit\\Framework\\TestCase',
+
+    //this is the PHPUnit mock object class. You can change it to something else if you are using a wrapper over PHPUnit
+    'mock_object_class' => '\\PHPUnit\\Framework\\MockObject\\MockObject',
+
+    //The access specifier for test mocks. Use private or protected (or public, but what's the point of it?)
+    'member_access' => 'private',
+    //if set to yes, dock blocks for the mocks will be generated. This mai be useful if you are working with strong_type off
+    'member_doc_blocks' => false,
+
+    //prefix for the test methods. If you are using PHPUnit 10+ this the test methods can be annotated with #[Test]
+    //and do not require the `test` prefix. For PHPUnit 9 or below the `test` prefix is required
+    'test_method_prefix' => 'test',
+
+    //if set to trye, it will annotate the test methods with #[Test], works in PHPUnit 10+, set it to false for PHPUnit 9 or below
+    'use_test_attribute' => true,
+
+    //test attribute class name (see above). Not sure why would you change it, but you can do it here
+    'test_attribute_class' => '\\PHPUnit\\Framework\\Attributes\\Test',
+
+     // this is the CoversClass attribute in case you are using code_coverage = 1. Again, you don't need to change it, but you can.
+    'covers_class_annotation' => '\\PHPUnit\\Framework\\Attributes\\CoversClass',
+];

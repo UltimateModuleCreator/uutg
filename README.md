@@ -80,27 +80,30 @@ use Dummy\MmeberTwo;
 use Dummy\SomeClass;
 use Dummy\SomeOtherClass;
 use Other\Path\SomeClass as SomeClassPath; //COMMENT: it will avoid conflicts in case there are 2 classes in different namespaces
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+#[CoversClass(SomeClass::class)] //COMMENT: for PHPUnit 10+
 class SomeClassTest extends TestCase
 {
     /**
      * @var MemberOne | MockObject //COMMENT: extract all used memmbers at the top of the test. you can configure it via profiles to make them strong typed or not
      */
-    private MemberOne $memberOne;
+    private MemberOne|MockObject $memberOne;
     /**
      * @var MmeberTwo | MockObject
      */
-    private MmeberTwo $member2;
+    private MmeberTwo|MockObject $member2;
     /**
      * @var SomeClassPath | MockObject
      */
-    private SomeClassPath $param;
+    private SomeClassPath|MockObject $param;
     /**
      * @var SomeOtherClass | MockObject
      */
-    private SomeOtherClass $paramSomeOtherClass;
+    private SomeOtherClass|MockObject $paramSomeOtherClass;
     /**
      * @var SomeClass
      */
@@ -126,6 +129,8 @@ class SomeClassTest extends TestCase
      * @covers \Dummy\SomeClass::doSomePrivateAction
      * @covers \Dummy\SomeClass::__construct
      */
+    //COMMENT ... or for PHPUnit 10+
+    #[Test]
     public function testDoSomething()
     {
         //COMMENT: generates a stub for your test
@@ -137,6 +142,8 @@ class SomeClassTest extends TestCase
      * @covers \Dummy\SomeClass::doSomething
      * @covers \Dummy\SomeClass::__construct
      */
+    //COMMENT ... or for PHPUnit 10+
+    #[Test]
     public function testDoSomethingElse()
     {
         $this->someClass->doSomethingElse();
@@ -147,89 +154,24 @@ class SomeClassTest extends TestCase
 
 ## How to configure it
 
-You can create your own profile either in the core/profile folder, or in the custom/profile folder (recommended).
-A profile is basically a php file with the following structure:
-(You can define multiple profiles in the same file, but the recommended approach is to keep them separate).
-Let's name the profile: "dummy"
-
-```
-<?php
-return [
-    'dummy' => [ //<-- the profile name. you can make it the same as the file name
-        'extends' => 'default', //<-- you can extend a different existing profule and modify only what you need to.
-        //this is the absolute path to a file on your project that includes the autoloader
-        //example for magento "bootstrap.php", example for symfony "vendor/autoload.php"
-        'autoload_path' => '/path/to/autoloader/from/your/app.php'
-        //this defines the way the namespace of the test class will be generated based on the base class name
-        //in this case, the name of the class will be split by backslash and the words Test and Unit will be inserted at position 2 and 3 in the array
-        //Example \Dummy\SomeClass will generated the test class name `Dummy\Test\Unit\SomeClass` 
-        'namespace_strategy' => [
-            2 => 'Test',
-            3 => 'Unit'
-        ],
-        //this is a list of classes that will be added in the "use" section of the generated test class all the time
-        'default_uses' => [
-            'PHPUnit\Framework\TestCase',
-            'PHPUnit\Framework\MockObject\MockObject'
-        ],
-        //this text will be added at the top of the generated output. Usefull if you want to add licence text or anyrhing else
-        'header' => [
-            '<?php',
-            '',
-            'declare(strict_types=1);',
-            '',
-            ''
-        ],
-        //this is the list of methods that are marked as non testable. It will not generate a test method for this.
-        'non_testable' => [
-            '__construct'
-        ],
-        //this marks if the member vars in the generated class will be strong typed or not.
-        'strong_type' => true,
-        //a list of default types that cannot be mocked. In this case, everytime a string is used in the original class, an empty string will be used as parameter in the test class.
-        'non_mockable' => [
-            'string' => '""',
-            'array' => '[]',
-            'int' => '1',
-            'bool' => 'true',
-            'float' =>  '1.00',
-            'callable' => 'function () {
-            }',
-            '\Closure' => 'function () {
-            }'
-        ],
-        //optional list of types to be replaced when mocked.
-        //For example if your class uses as depencency an instance of class / interface `SomeClassName` the actuall mock will be done for `OherClassName`
-        'replacements => [
-            'SomeClassName' => 'OherClassName',
-        ],
-        //optional. in case you need extra processing before genrating a test class, you can list here the classes that are going to handle that.
-        //each class must implement \Uutg\Rule\RuleInterface. 
-        //and the method `process` receives as parameter the instance of the Builder class that handles the test class generation
-        //you can create these classes in the "custom" folder as you wish
-        'rule_set' => [
-            '\Some\ClassName',
-            `\SomeOtherClassName,`
-        ],
-        //this is optional. All test classes are generated via a template. by default is 'templates/test.phtml' but you can create your own and reference them in your profile
-        "template" => 'test.phtml',
-        ///you can add here anythig else you might need and use them in your custom code byt calling Profile::getData('path/to/config/value/here')
-    ],
-];
-
-```
+You can create your own configuration file starting from uutg.php.dist and use it instead of the default one. 
+Each element in the configuration file is explained inside uutg.php.dist
 
 
 ## How to use it.
+You can install if via composer
+First configure the repository
+```composer config repositories.umc vcs https://github.com/ultimatemodulecreator/uutg```
+Then install de library as a dev dependency
+```composer require --dev umc/uutg ```
 
- - in the browser by calling `index.php?class=ClassName\Goes\Here,OtherClassHere&profile=profileName`;
-   - class - mandatory:  represents the class or classes for which you generate the tests comma separated
-   - profile - optional: the profule name used to generate the test classes. It defaults to "default".
+if you installed this via composer you can run it via cli  
+`php ./vendor/bin/uutg --class="Class\\NameHere" [--config=path/to/config/file]`
+   - class is the name of the class you want to generate a test for. 
+   - config is the path to the config file for generating the test. if empty, the default uutg.php.dist will be used
 
- - cli `php index.php --class=Class\\NameHere [--profile=profileName]`
-   - parameters ar the same as above
-   - Don't forget to double backslash your classes.
- 
+if you installed it "manually" you can run it similar to the composer version `php ./uutg --class="Class\\NameHere" [--config=path/to/config/file]` 
+but you have to make sure your class can be autoloaded but the script.
 ## FAQs and comments
 
 1. "But TDD says you should write the test first and then the class. You are doing it the other way around.". Yes you are right.

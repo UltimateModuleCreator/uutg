@@ -1,0 +1,20 @@
+{
+  "name": "umc/uutg",
+  "description": "PHP Unit test generator",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Umc\\Uutg\\": "src/Uutg/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Marius Strajeru"
+    }
+  ],
+  "minimum-stability": "stable",
+  "bin": [
+    "uutg"
+  ]
+}
