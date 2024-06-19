@@ -423,7 +423,8 @@ class Generator
         $map = [];
         $useLines = [];
         foreach ($uses as $use) {
-            $useLines[] = 'use ' . ltrim($use['class'], '\\') . ($use['level'] > 0 ? ' as ' . $use['alias'] : '') . ';';
+            $useLines[] = 'use ' . ltrim($use['class'], '\\') .
+                ($use['level'] > 0 ? ' as ' . $use['alias'] : '') . ';';
             $map[$use['original']] = $use['alias'];
         }
         usort($useLines, 'strcmp');

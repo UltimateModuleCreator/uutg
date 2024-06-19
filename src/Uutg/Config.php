@@ -20,7 +20,7 @@ namespace Umc\Uutg;
 
 class Config
 {
-    public const DEFAULT_TEMPLATE = './src/test.phtml';
+    public const DEFAULT_TEMPLATE = __DIR__ . '../test.phtml';
     public const COVERAGE_MODE_ANNOTATION = 1;
     public const COVERAGE_MODE_DOC_BLOCK = 2;
     public function __construct(private array $config)

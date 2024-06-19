@@ -85,7 +85,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(SomeClass::class)] //COMMENT: for PHPUnit 20+
+#[CoversClass(SomeClass::class)] //COMMENT: for PHPUnit 10+
 class SomeClassTest extends TestCase
 {
     /**
@@ -159,6 +159,11 @@ Each element in the configuration file is explained inside uutg.php.dist
 
 
 ## How to use it.
+You can install if via composer
+First configure the repository
+```composer config repositories.umc vcs https://github.com/ultimatemodulecreator/uutg```
+Then install de library as a dev dependency
+```composer require --dev umc/uutg ```
 
 if you installed this via composer you can run it via cli  
 `php ./vendor/bin/uutg --class="Class\\NameHere" [--config=path/to/config/file]`

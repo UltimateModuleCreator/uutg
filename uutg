@@ -45,7 +45,6 @@ require UUTG_COMPOSER_INSTALL;
 $options = getopt("", ["class:", "config::"]);
 $configFile = $options['config'] ?? __DIR__.'/./uutg.php.dist';
 
-echo $configFile;echo "\n";
 if (!file_exists($configFile)) {
     exit(sprintf("Config file '%s' does not exist\n", $configFile));
 }
